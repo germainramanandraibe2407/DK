@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Validation de carte</title>
+</head>
+<link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet" />
+
+  <link href="css/style.css" rel="stylesheet" />
+
+  <link href="css/responsive.css" rel="stylesheet" />
+<body>
+	
+	<header class="header_section">
+		<div class="container-fluid">
+		  <nav class="navbar navbar-expand-lg custom_nav-container ">
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+			  aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			  <span class="navbar-toggler-icon"></span>
+			</button>
+  
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			  <div class="d-flex ml-auto flex-column flex-lg-row align-items-center">
+				<ul class="navbar-nav  ">
+				  <li class="nav-item active">
+					<a class="nav-link" href="validation.html">cartes en attente de validation <span class="sr-only">(current)</span></a>
+				  </li>
+				  <li class="nav-item ">
+					<a class="nav-link" href="valide.html">cartes validées</a>
+				  </li>
+				  <li class="nav-item">
+					<a class="nav-link" href="reject.html">cartes rejetés</a>
+				  </li>
+				 
+				</ul>
+				
+			  </div>
+			</div>
+		  </nav>
+		</div>
+	  </header>	
+
+	
+
+	
+
+	<!-- Tableau pour afficher les cartes en attente de validation -->
+	<div class="heading_container">
+		<h2>
+			Validation de carte
+		</h2>
+	</div>
+	
+	<!-- Bouton pour récupérer les cartes en attente de validation -->
+	
+	  <section class="about_section layout_padding-bottom">
+		
+	  <div class="box"> 
+	  <button class="btn-box" onclick="getPendingCartes()">
+		
+			Récupérer les cartes en attente de validation
+		
+	  </button>
+	
+		</div>
+	  </section>
+	 
+<div class="table-wrapper">
+    <table id="pendingCartes" class="fl-table">
+        <thead>
+        <tr>
+			<th>ID de la carte</th>
+			<th>Nom</th>
+			<th>Prénom</th>
+			<th>Date de naissance</th>
+			<th>Titre</th>
+			<th>Entreprise</th>
+			<th>CIN</th>
+			<th>Adresse</th>
+			<th>Email</th>
+			<th>Telephone</th>
+			<th>Site web</th>
+			<th>Facebook</th>
+			<th>Tiktok</th>
+			<th>Linkedin</th>
+			<th>Whatsapp</th>
+			<th>Twiter</th>
+			<th>Description</th>
+			<th>Type</th>
+			<th>Photo CIN</th>
+			<th>Photo recent</th>
+			<th>Photo logo</th>
+        </tr>
+        </thead>
+        <tbody>
+   
+		</tbody>
+    </table>
+</div>
+
+	
+
+	<!-- Formulaire pour valider ou rejeter une carte -->
+	<form id="validateCarteForm" >
+		<label for="id">ID de la carte :</label>
+		<input type="number" id="id" name="id" required>
+		<button type="button" onclick="validateCarte('validate')">Valider la carte</button>
+		<button type="button" onclick="validateCarte('reject')">Rejeter la carte</button>
+	</form>
+
+	<!-- Conteneur pour afficher les messages de réussite ou d'erreur lors de la validation -->
+	<div id="validationResult"></div>
+
+    <!-- Tableau pour afficher les cartes validées -->
+
+
+  <!-- Tableau pour afficher les cartes validées -->
+  
+  
+
+  <script>
+	function getPendingCartes() {
+		fetch('192.168.1.83:3000/api/validation/pending')
+			.then(response => response.json())
+			.then(data => {
+			let pendingCartesBody = document.querySelector('#pendingCartes tbody');
+			pendingCartesBody.innerHTML = '';
+			if (data.length === 0) {
+				pendingCartesBody.innerHTML = '<tr><td colspan="3">Aucun carte a valider</td></tr>';
+			} else {
+				data.forEach(carte => {
+				// Extraction et conversion des images en URL
+				let photo_cin_url = '';
+				if (carte.photo_cin !== null) {
+					photo_cin_url = 'data:image/png;base64,' + btoa(String.fromCharCode.apply(null, carte.photo_cin.data));
+				}
+
+				let photo_recent_url = '';
+				if (carte.photo_recent !== null) {
+					photo_recent_url = 'data:image/png;base64,' + btoa(String.fromCharCode.apply(null, carte.photo_recent.data));
+				}
+
+				let photo_logo_url = '';
+				if (carte.photo_logo !== null) {
+					photo_logo_url = 'data:image/png;base64,' + btoa(String.fromCharCode.apply(null, carte.photo_logo.data));
+				}
+
+				pendingCartesBody.innerHTML += `
+					<tr>
+					<td>${carte.id}</td>
+					<td>${carte.nom}</td>
+					<td>${carte.prenom}</td>
+					<td>${carte.dateNaissance}</td>
+					<td>${carte.titre}</td>
+					<td>${carte.entreprise}</td>
+					<td>${carte.cin}</td>
+					<td>${carte.adresse}</td>
+					<td>${carte.email}</td>
+					<td>${carte.telephone}</td>
+					<td>${carte.site_web}</td>
+					<td>${carte.fb}</td>
+					<td>${carte.tiktok}</td>
+					<td>${carte.linkedin}</td>
+					<td>${carte.whatsapp}</td>
+					<td>${carte.twiter}</td>
+					<td>${carte.description}</td>
+					<td>${carte.type}</td>
+					<!-- Affichage des images -->
+						<td><img src="${photo_cin_url}" alt="Photo CIN"></td>
+						<td><img src="${photo_recent_url}" alt="Photo récente"></td>
+						<td><img src="${photo_logo_url}" alt="Photo logo"></td>
+					<td><button onclick="showValidateCarteForm(${carte.id})">Valider / Rejeter</button></td>
+					</tr>`;
+				});
+			}
+			})
+			.catch(error => console.error(error));
+		}
+
+
+	function showValidateCarteForm(id) {
+		document.getElementById('id').value = id;
+		document.getElementById('validateCarteForm').style.display = 'block';
+	}
+
+	function validateCarte(status) {
+		let id = document.getElementById('id').value;
+		fetch(`http://192.168.1.83:3000/api/validation/${status}/${id}`, {
+			method: 'POST'
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error(`Erreur lors de la validation de la carte : ${response.statusText}`);
+			}
+			return response.text();
+		})
+		.then(data => {
+			let validationResult = document.getElementById('validationResult');
+			validationResult.innerHTML = data;
+			getPendingCartes();
+		})
+		.catch(error => {
+			let validationResult = document.getElementById('validationResult');
+			validationResult.innerHTML = `Erreur lors de la validation de la carte : ${error.message}`;
+		});
+	}
+
+	function getValidatedCartes() {
+		fetch('http://192.168.1.83:3000/api/validation/validated')
+		.then(response => response.json())
+		.then(data => {
+		let validatedCartesBody = document.querySelector('#validatedCartes tbody');
+		validatedCartesBody.innerHTML = '';
+		if (data.length === 0) {
+			validatedCartesBody.innerHTML = '<tr><td colspan="3">Aucun carte validé</td></tr>';
+		} else {
+			data.forEach(carte => {
+				validatedCartesBody.innerHTML += `
+				<tr>
+					<td>${carte.id}</td>
+					<td>${carte.nom}</td>
+					<td>${carte.prenom}</td>
+					<td>${carte.dateNaissance}</td>
+					<td>${carte.titre}</td>
+					<td>${carte.entreprise}</td>
+					<td>${carte.cin}</td>
+					<td>${carte.adresse}</td>
+					<td>${carte.email}</td>
+					<td>${carte.telephone}</td>
+					<td>${carte.site_web}</td>
+					<td>${carte.fb}</td>
+					<td>${carte.tiktok}</td>
+					<td>${carte.linkedin}</td>
+					<td>${carte.whatsapp}</td>
+					<td>${carte.twiter}</td>
+					<td>${carte.description}</td>
+					<td>${carte.type}</td>
+					<td>${carte.photo_cin}</td>
+					<td>${carte.photo_recent}</td>
+					<td>${carte.photo_logo}</td>
+				</tr>`;
+			});
+		}
+		})
+		.catch(error => console.error(error));
+	}
+
+	function getRejectedCartes() {
+		fetch('http://192.168.1.83:3000/api/validation/rejected')
+		.then(response => response.json())
+		.then(data => {
+		let rejectedCartesBody = document.querySelector('#rejectedCartes tbody');
+		rejectedCartesBody.innerHTML = '';
+		if (data.length === 0) {
+			rejectedCartesBody.innerHTML = '<tr><td colspan="3">Pas de carte rejeté</td></tr>';
+		} else {
+			data.forEach(carte => {
+				rejectedCartesBody.innerHTML += `
+				<tr>
+					<td>${carte.id}</td>
+					<td>${carte.nom}</td>
+					<td>${carte.prenom}</td>
+					<td>${carte.dateNaissance}</td>
+					<td>${carte.titre}</td>
+					<td>${carte.entreprise}</td>
+					<td>${carte.cin}</td>
+					<td>${carte.adresse}</td>
+					<td>${carte.email}</td>
+					<td>${carte.telephone}</td>
+					<td>${carte.site_web}</td>
+					<td>${carte.fb}</td>
+					<td>${carte.tiktok}</td>
+					<td>${carte.linkedin}</td>
+					<td>${carte.whatsapp}</td>
+					<td>${carte.twiter}</td>
+					<td>${carte.description}</td>
+					<td>${carte.type}</td>
+					<td>${carte.photo_cin}</td>
+					<td>${carte.photo_recent}</td>
+					<td>${carte.photo_logo}</td>
+				</tr>`;
+			});
+		}
+		})
+		.catch(error => console.error(error));
+	}
+</script>
+</body>
+</html>
